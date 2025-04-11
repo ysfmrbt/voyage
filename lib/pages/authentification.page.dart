@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
-class InscriptionPage extends StatelessWidget {
+class AuthentificiationPage extends StatelessWidget {
   TextEditingController txt_login = new TextEditingController();
   TextEditingController txt_password = new TextEditingController();
   late SharedPreferences prefs;
@@ -10,7 +10,7 @@ class InscriptionPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Page Inscription".toUpperCase(),
+          "Page Authentification".toUpperCase(),
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         ),
         backgroundColor: Colors.blue,
@@ -36,7 +36,7 @@ class InscriptionPage extends StatelessWidget {
             padding: EdgeInsets.all(10),
             child: TextFormField(
               decoration: InputDecoration(
-                labelText: "password",
+                labelText: "Mot de passe",
                 hintText: "Entrer votre password",
                 prefixIcon: Icon(Icons.lock),
                 border: OutlineInputBorder(
@@ -52,10 +52,10 @@ class InscriptionPage extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             child: ElevatedButton(
               onPressed: () {
-                _onInscrire(context); // _ car private
+                _onAuthentifier(context); // _ car private
               },
               child: Text(
-                "inscription",
+                "Authentifier",
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
@@ -68,10 +68,10 @@ class InscriptionPage extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             child: TextButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/authentification');
+                Navigator.pushNamed(context, '/inscription');
               },
               child: Text(
-                "Authentification",
+                "Inscription",
                 style: TextStyle(color: Colors.blue, fontSize: 20),
               ),
             ),
@@ -81,14 +81,19 @@ class InscriptionPage extends StatelessWidget {
     );
   }
 
-  Future<void> _onInscrire(BuildContext context) async {
+  Future<void> _onAuthentifier(BuildContext context) async {
     prefs = await SharedPreferences.getInstance();
     if (txt_login.text.isNotEmpty && txt_password.text.isNotEmpty) {
-      prefs.setString("login", txt_login.text);
-      prefs.setString("password", txt_password.text);
-      prefs.setBool("connecte", true);
-      Navigator.pop(context);
-      Navigator.pushNamed(context, '/home');
+      if (txt_login.text == prefs.getString("login") &&
+          txt_password.text == prefs.getString("password")) {
+        prefs.setBool("connecte", true);
+        Navigator.pushNamed(context, '/home');
+      } else {
+        const snackBar = SnackBar(
+          content: Text('Email ou mot de passe incorrect'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     } else {
       const snackBar = SnackBar(
         content: Text('Veuillez remplir tous les champs'),
