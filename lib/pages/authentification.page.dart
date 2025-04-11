@@ -1,79 +1,62 @@
 import "package:flutter/material.dart";
 import "package:shared_preferences/shared_preferences.dart";
+import "../widgets/base_page.dart";
+import "../theme/app_theme.dart";
 
 class AuthentificiationPage extends StatelessWidget {
-  TextEditingController txt_login = new TextEditingController();
-  TextEditingController txt_password = new TextEditingController();
-  late SharedPreferences prefs;
+  final TextEditingController txt_login;
+  final TextEditingController txt_password;
+  final SharedPreferences? prefs;
+
+  AuthentificiationPage({super.key, this.prefs})
+    : txt_login = TextEditingController(),
+      txt_password = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Page Authentification".toUpperCase(),
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-        ),
-        backgroundColor: Colors.blue,
-      ),
+    return BasePage(
+      title: "Authentification",
+      showDrawer: false,
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(10),
+            padding: AppTheme.paddingMedium,
             child: TextFormField(
-              decoration: InputDecoration(
-                labelText: "Email",
-                hintText: "Entrer votre email",
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(width: 2),
-                ),
+              decoration: AppTheme.inputDecoration(
+                "Email",
+                "Entrez votre email",
+                Icons.email,
               ),
               controller: txt_login,
             ),
           ),
           Container(
-            padding: EdgeInsets.all(10),
+            padding: AppTheme.paddingMedium,
             child: TextFormField(
-              decoration: InputDecoration(
-                labelText: "Mot de passe",
-                hintText: "Entrer votre password",
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(width: 2),
-                ),
+              decoration: AppTheme.inputDecoration(
+                "Mot de passe",
+                "Entrez votre mot de passe",
+                Icons.lock,
               ),
               controller: txt_password,
               obscureText: true,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: AppTheme.paddingMedium,
             child: ElevatedButton(
               onPressed: () {
                 _onAuthentifier(context); // _ car private
               },
-              child: Text(
-                "Authentifier",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                minimumSize: Size.fromHeight(50),
-              ),
+              child: const Text("Authentifier"),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: AppTheme.paddingMedium,
             child: TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/inscription');
               },
-              child: Text(
-                "Inscription",
-                style: TextStyle(color: Colors.blue, fontSize: 20),
-              ),
+              child: Text("Inscription", style: AppTheme.linkTextStyle),
             ),
           ),
         ],
@@ -82,11 +65,11 @@ class AuthentificiationPage extends StatelessWidget {
   }
 
   Future<void> _onAuthentifier(BuildContext context) async {
-    prefs = await SharedPreferences.getInstance();
+    final preferences = await SharedPreferences.getInstance();
     if (txt_login.text.isNotEmpty && txt_password.text.isNotEmpty) {
-      if (txt_login.text == prefs.getString("login") &&
-          txt_password.text == prefs.getString("password")) {
-        prefs.setBool("connecte", true);
+      if (txt_login.text == prefs?.getString("login") &&
+          txt_password.text == prefs?.getString("password")) {
+        prefs?.setBool("connecte", true);
         Navigator.pushNamed(context, '/home');
       } else {
         const snackBar = SnackBar(

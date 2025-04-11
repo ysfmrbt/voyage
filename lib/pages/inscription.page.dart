@@ -1,79 +1,63 @@
 import "package:flutter/material.dart";
 import "package:shared_preferences/shared_preferences.dart";
+import "../widgets/base_page.dart";
+import "../theme/app_theme.dart";
 
 class InscriptionPage extends StatelessWidget {
-  TextEditingController txt_login = new TextEditingController();
-  TextEditingController txt_password = new TextEditingController();
-  late SharedPreferences prefs;
+  final TextEditingController txt_login;
+  final TextEditingController txt_password;
+  final SharedPreferences? prefs;
+
+  InscriptionPage({super.key, SharedPreferences? prefs})
+    : txt_login = TextEditingController(),
+      txt_password = TextEditingController(),
+      prefs = prefs;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Page Inscription".toUpperCase(),
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-        ),
-        backgroundColor: Colors.blue,
-      ),
+    return BasePage(
+      title: "Inscription",
+      showDrawer: false,
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(10),
+            padding: AppTheme.paddingMedium,
             child: TextFormField(
-              decoration: InputDecoration(
-                labelText: "Email",
-                hintText: "Entrer votre email",
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(width: 2),
-                ),
+              decoration: AppTheme.inputDecoration(
+                "Email",
+                "Entrer votre email",
+                Icons.email,
               ),
               controller: txt_login,
             ),
           ),
           Container(
-            padding: EdgeInsets.all(10),
+            padding: AppTheme.paddingMedium,
             child: TextFormField(
-              decoration: InputDecoration(
-                labelText: "password",
-                hintText: "Entrer votre password",
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(width: 2),
-                ),
+              decoration: AppTheme.inputDecoration(
+                "Mot de passe",
+                "Entrez votre mot de passe",
+                Icons.lock,
               ),
               controller: txt_password,
               obscureText: true,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: AppTheme.paddingMedium,
             child: ElevatedButton(
               onPressed: () {
                 _onInscrire(context); // _ car private
               },
-              child: Text(
-                "inscription",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                minimumSize: Size.fromHeight(50),
-              ),
+              child: const Text("Inscription"),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: AppTheme.paddingMedium,
             child: TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/authentification');
               },
-              child: Text(
-                "Authentification",
-                style: TextStyle(color: Colors.blue, fontSize: 20),
-              ),
+              child: Text("Authentification", style: AppTheme.linkTextStyle),
             ),
           ),
         ],
@@ -82,11 +66,11 @@ class InscriptionPage extends StatelessWidget {
   }
 
   Future<void> _onInscrire(BuildContext context) async {
-    prefs = await SharedPreferences.getInstance();
+    final preferences = await SharedPreferences.getInstance();
     if (txt_login.text.isNotEmpty && txt_password.text.isNotEmpty) {
-      prefs.setString("login", txt_login.text);
-      prefs.setString("password", txt_password.text);
-      prefs.setBool("connecte", true);
+      prefs?.setString("login", txt_login.text);
+      prefs?.setString("password", txt_password.text);
+      prefs?.setBool("connecte", true);
       Navigator.pop(context);
       Navigator.pushNamed(context, '/home');
     } else {
