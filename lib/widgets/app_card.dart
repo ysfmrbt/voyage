@@ -17,7 +17,7 @@ class AppCard extends StatelessWidget {
     required this.child,
     this.onTap,
     this.padding,
-    this.elevation,
+    this.elevation = 2.0,
     this.borderRadius,
     this.color,
   });
@@ -28,7 +28,7 @@ class AppCard extends StatelessWidget {
     final isDarkMode = themeProvider.isDarkMode;
 
     return Card(
-      elevation: elevation ?? (isDarkMode ? 1 : 2),
+      elevation: elevation,
       color: color ?? (isDarkMode ? AppTheme.secondaryColorLight : Colors.white),
       shadowColor: AppTheme.shadowColor,
       shape: RoundedRectangleBorder(
@@ -45,3 +45,5 @@ class AppCard extends StatelessWidget {
     );
   }
 }
+
+

@@ -45,8 +45,10 @@ class MyDrawer extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.shadowColor,
-                        blurRadius: 8,
+                        color: isDarkMode 
+                            ? Colors.black26
+                            : AppTheme.shadowColor,
+                        blurRadius: isDarkMode ? 6 : 8,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -54,19 +56,28 @@ class MyDrawer extends StatelessWidget {
                   child: CircleAvatar(
                     backgroundImage: const AssetImage("images/profil.jpg"),
                     radius: 50,
-                    backgroundColor: Colors.white,
+                    backgroundColor: isDarkMode 
+                        ? AppTheme.surfaceColor 
+                        : Colors.white,
                   ),
                 ),
                 const SizedBox(height: 16),
                 AppText.heading(
                   "Voyage",
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: isDarkMode 
+                        ? AppTheme.textColor 
+                        : Colors.white,
+                    fontWeight: AppTheme.boldWeight,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 AppText.caption(
                   "Explorez le monde",
                   style: TextStyle(
-                    color: Colors.white.withAlpha(204), // ~0.8 opacity
+                    color: isDarkMode 
+                        ? AppTheme.textColor.withOpacity(0.8)
+                        : Colors.white.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(height: 16),

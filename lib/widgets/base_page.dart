@@ -35,15 +35,23 @@ class BasePage extends StatelessWidget {
       drawer: showDrawer ? const MyDrawer() : null,
       appBar: AppBar(
         title: AppText.heading(
-          // Only capitalize the first letter of each word instead of the entire title
           title,
-          style: const TextStyle(fontSize: 22, letterSpacing: 0.5),
+          style: TextStyle(
+            fontSize: 22,
+            letterSpacing: 0.5,
+            color: isDarkMode ? AppTheme.textColor : Colors.white,
+          ),
         ),
-        backgroundColor:
-            isDarkMode ? AppTheme.surfaceColor : AppTheme.primaryColorLight,
-        foregroundColor:
-            isDarkMode ? AppTheme.textColor : AppTheme.primaryColor,
-        elevation: isDarkMode ? 0 : 1,
+        backgroundColor: isDarkMode 
+            ? AppTheme.surfaceColor 
+            : AppTheme.primaryColor,
+        foregroundColor: isDarkMode 
+            ? AppTheme.textColor 
+            : Colors.white,
+        iconTheme: IconThemeData(
+          color: isDarkMode ? AppTheme.textColor : Colors.white,
+        ),
+        elevation: isDarkMode ? 1 : 2,
         shadowColor: AppTheme.shadowColor,
         actions: actions,
       ),
@@ -55,3 +63,4 @@ class BasePage extends StatelessWidget {
     );
   }
 }
+
