@@ -6,6 +6,7 @@ import 'package:voyage/pages/inscription.page.dart';
 import 'package:voyage/pages/home.page.dart';
 import 'theme/app_theme.dart';
 import 'providers/theme_provider.dart';
+import 'providers/weather_provider.dart';
 import 'package:voyage/pages/contact.page.dart';
 import 'package:voyage/pages/gallerie.page.dart';
 import 'package:voyage/pages/parametres.page.dart';
@@ -15,7 +16,13 @@ import 'package:voyage/pages/meteo.page.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(create: (_) => ThemeProvider(), child: MyApp()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => WeatherProvider()),
+      ],
+      child: MyApp(),
+    ),
   );
 }
 
