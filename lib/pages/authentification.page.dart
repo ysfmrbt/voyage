@@ -16,50 +16,53 @@ class AuthentificiationPage extends StatelessWidget {
     return BasePage(
       title: "Authentification",
       showDrawer: false,
-      body: Column(
-        children: [
-          Container(
-            padding: AppTheme.paddingMedium,
-            child: TextFormField(
-              decoration: AppTheme.inputDecoration(
-                "Email",
-                "Entrez votre email",
-                Icons.email,
+      body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          children: [
+            Container(
+              padding: AppTheme.paddingMedium,
+              child: TextFormField(
+                decoration: AppTheme.inputDecoration(
+                  "Email",
+                  "Entrez votre email",
+                  Icons.email,
+                ),
+                controller: txt_login,
               ),
-              controller: txt_login,
             ),
-          ),
-          Container(
-            padding: AppTheme.paddingMedium,
-            child: TextFormField(
-              decoration: AppTheme.inputDecoration(
-                "Mot de passe",
-                "Entrez votre mot de passe",
-                Icons.lock,
+            Container(
+              padding: AppTheme.paddingMedium,
+              child: TextFormField(
+                decoration: AppTheme.inputDecoration(
+                  "Mot de passe",
+                  "Entrez votre mot de passe",
+                  Icons.lock,
+                ),
+                controller: txt_password,
+                obscureText: true,
               ),
-              controller: txt_password,
-              obscureText: true,
             ),
-          ),
-          Padding(
-            padding: AppTheme.paddingMedium,
-            child: ElevatedButton(
-              onPressed: () {
-                _onAuthentifier(context); // _ car private
-              },
-              child: const Text("Authentifier"),
+            Padding(
+              padding: AppTheme.paddingMedium,
+              child: ElevatedButton(
+                onPressed: () {
+                  _onAuthentifier(context); // _ car private
+                },
+                child: const Text("Authentifier"),
+              ),
             ),
-          ),
-          Padding(
-            padding: AppTheme.paddingMedium,
-            child: TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/inscription');
-              },
-              child: Text("Inscription", style: AppTheme.linkTextStyle),
+            Padding(
+              padding: AppTheme.paddingMedium,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/inscription');
+                },
+                child: Text("Inscription", style: AppTheme.linkTextStyle),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

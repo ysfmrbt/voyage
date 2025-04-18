@@ -11,6 +11,7 @@ import 'package:voyage/pages/gallerie.page.dart';
 import 'package:voyage/pages/parametres.page.dart';
 import 'package:voyage/pages/pays.page.dart';
 import 'package:voyage/pages/mates.page.dart';
+import 'package:voyage/pages/meteo.page.dart';
 
 void main() {
   runApp(
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
     '/parametres': (context) => ParametresPage(),
     '/pays': (context) => PaysPage(),
     '/mates': (context) => MatesPage(),
+    '/meteo': (context) => const MeteoPage(),
   };
   @override
   Widget build(BuildContext context) {

@@ -17,50 +17,53 @@ class InscriptionPage extends StatelessWidget {
     return BasePage(
       title: "Inscription",
       showDrawer: false,
-      body: Column(
-        children: [
-          Container(
-            padding: AppTheme.paddingMedium,
-            child: TextFormField(
-              decoration: AppTheme.inputDecoration(
-                "Email",
-                "Entrer votre email",
-                Icons.email,
+      body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          children: [
+            Container(
+              padding: AppTheme.paddingMedium,
+              child: TextFormField(
+                decoration: AppTheme.inputDecoration(
+                  "Email",
+                  "Entrer votre email",
+                  Icons.email,
+                ),
+                controller: txt_login,
               ),
-              controller: txt_login,
             ),
-          ),
-          Container(
-            padding: AppTheme.paddingMedium,
-            child: TextFormField(
-              decoration: AppTheme.inputDecoration(
-                "Mot de passe",
-                "Entrez votre mot de passe",
-                Icons.lock,
+            Container(
+              padding: AppTheme.paddingMedium,
+              child: TextFormField(
+                decoration: AppTheme.inputDecoration(
+                  "Mot de passe",
+                  "Entrez votre mot de passe",
+                  Icons.lock,
+                ),
+                controller: txt_password,
+                obscureText: true,
               ),
-              controller: txt_password,
-              obscureText: true,
             ),
-          ),
-          Padding(
-            padding: AppTheme.paddingMedium,
-            child: ElevatedButton(
-              onPressed: () {
-                _onInscrire(context); // _ car private
-              },
-              child: const Text("Inscription"),
+            Padding(
+              padding: AppTheme.paddingMedium,
+              child: ElevatedButton(
+                onPressed: () {
+                  _onInscrire(context); // _ car private
+                },
+                child: const Text("Inscription"),
+              ),
             ),
-          ),
-          Padding(
-            padding: AppTheme.paddingMedium,
-            child: TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/authentification');
-              },
-              child: Text("Authentification", style: AppTheme.linkTextStyle),
+            Padding(
+              padding: AppTheme.paddingMedium,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/authentification');
+                },
+                child: Text("Authentification", style: AppTheme.linkTextStyle),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

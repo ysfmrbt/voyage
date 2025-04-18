@@ -13,85 +13,104 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return BasePage(
       title: 'Accueil',
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Welcome section
-          AppContainer(
-            margin: const EdgeInsets.only(bottom: 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Welcome section
+            AppContainer(
+              margin: const EdgeInsets.only(bottom: 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const AppText.heading('Bienvenue sur Voyage'),
+                  const SizedBox(height: 10),
+                  const AppText.body('Votre compagnon de voyage'),
+                ],
+              ),
+            ),
+
+            // Quick actions section
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 4),
+              child: AppText.subheading('Actions rapides'),
+            ),
+            const SizedBox(height: 16),
+            Row(
               children: [
-                const AppText.heading('Bienvenue sur Voyage'),
-                const SizedBox(height: 10),
-                const AppText.body('Votre compagnon de voyage'),
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.explore,
+                    'Explorer',
+                    AppTheme.primaryColor,
+                    () => Navigator.pushNamed(context, '/pays'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.photo_library,
+                    'Galerie',
+                    AppTheme.secondaryColor,
+                    () => Navigator.pushNamed(context, '/gallerie'),
+                  ),
+                ),
               ],
             ),
-          ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.people,
+                    'Amis',
+                    AppTheme.accentColor,
+                    () => Navigator.pushNamed(context, '/mates'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.contact_mail,
+                    'Contact',
+                    AppTheme.primaryColor.withAlpha(180),
+                    () => Navigator.pushNamed(context, '/contact'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.wb_sunny,
+                    'Météo',
+                    AppTheme.accentColor.withAlpha(220),
+                    () => Navigator.pushNamed(context, '/meteo'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(child: SizedBox()),
+              ],
+            ),
 
-          // Quick actions section
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 4),
-            child: AppText.subheading('Actions rapides'),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionCard(
-                  context,
-                  Icons.explore,
-                  'Explorer',
-                  AppTheme.primaryColor,
-                  () => Navigator.pushNamed(context, '/pays'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildActionCard(
-                  context,
-                  Icons.photo_library,
-                  'Galerie',
-                  AppTheme.secondaryColor,
-                  () => Navigator.pushNamed(context, '/gallerie'),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionCard(
-                  context,
-                  Icons.people,
-                  'Amis',
-                  AppTheme.accentColor,
-                  () => Navigator.pushNamed(context, '/mates'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildActionCard(
-                  context,
-                  Icons.contact_mail,
-                  'Contact',
-                  AppTheme.primaryColor.withAlpha(180),
-                  () => Navigator.pushNamed(context, '/contact'),
-                ),
-              ),
-            ],
-          ),
-
-          // Logout button
-          const SizedBox(height: 36),
-          AppButton(
-            text: 'Déconnexion',
-            icon: Icons.logout,
-            isPrimary: false,
-            onPressed: () => _onDeconnecter(context),
-          ),
-        ],
+            // Logout button
+            const SizedBox(height: 36),
+            AppButton(
+              text: 'Déconnexion',
+              icon: Icons.logout,
+              isPrimary: false,
+              onPressed: () => _onDeconnecter(context),
+            ),
+          ],
+        ),
       ),
     );
   }

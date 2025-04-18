@@ -78,83 +78,90 @@ class GalleriePage extends StatelessWidget {
           },
         ),
       ],
-      body: Column(
-        children: [
-          Expanded(
-            child: GridView.builder(
-              padding: AppTheme.paddingSmall,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.75,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: GridView.builder(
+                padding: AppTheme.paddingSmall,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 0.75,
+                ),
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      // Show image details when tapped
+                      _showImageDetails(context, images[index]);
+                    },
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: Image.network(
+                              images[index]["imageUrl"],
+                              fit: BoxFit.cover,
+                              loadingBuilder: (
+                                context,
+                                child,
+                                loadingProgress,
+                              ) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: AppTheme.paddingSmall,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  images[index]["title"],
+                                  style: AppTheme.subheadingStyle.copyWith(
+                                    fontSize: 16,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  images[index]["category"],
+                                  style: TextStyle(
+                                    color: AppTheme.captionColor,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-              itemCount: images.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    // Show image details when tapped
-                    _showImageDetails(context, images[index]);
-                  },
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: Image.network(
-                            images[index]["imageUrl"],
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value:
-                                      loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                          : null,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: AppTheme.paddingSmall,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                images[index]["title"],
-                                style: AppTheme.subheadingStyle.copyWith(
-                                  fontSize: 16,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                images[index]["category"],
-                                style: TextStyle(
-                                  color: AppTheme.captionColor,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -172,36 +179,41 @@ class GalleriePage extends StatelessWidget {
       context: context,
       builder:
           (context) => Dialog(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.network(image["imageUrl"], fit: BoxFit.cover),
-                Padding(
-                  padding: AppTheme.paddingMedium,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(image["title"], style: AppTheme.headingStyle),
-                      const SizedBox(height: 8),
-                      Text(image["description"], style: AppTheme.bodyTextStyle),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Catégorie: ${image["category"]}",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.captionColor,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.network(image["imageUrl"], fit: BoxFit.cover),
+                  Padding(
+                    padding: AppTheme.paddingMedium,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(image["title"], style: AppTheme.headingStyle),
+                        const SizedBox(height: 8),
+                        Text(
+                          image["description"],
+                          style: AppTheme.bodyTextStyle,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Text(
+                          "Catégorie: ${image["category"]}",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppTheme.captionColor,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("Fermer", style: AppTheme.linkTextStyle),
-                ),
-              ],
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Fermer", style: AppTheme.linkTextStyle),
+                  ),
+                ],
+              ),
             ),
           ),
     );
@@ -212,62 +224,64 @@ class GalleriePage extends StatelessWidget {
       context: context,
       builder:
           (context) => Dialog(
-            child: Padding(
-              padding: AppTheme.paddingMedium,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Ajouter une nouvelle image",
-                    style: AppTheme.headingStyle,
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    decoration: AppTheme.inputDecoration(
-                      "Titre",
-                      "Entrez le titre de l'image",
-                      Icons.title,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: AppTheme.paddingMedium,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Ajouter une nouvelle image",
+                      style: AppTheme.headingStyle,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    decoration: AppTheme.inputDecoration(
-                      "Description",
-                      "Entrez la description de l'image",
-                      Icons.description,
-                    ),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    decoration: AppTheme.inputDecoration(
-                      "URL de l'image",
-                      "Entrez l'URL de l'image",
-                      Icons.link,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text("Annuler", style: AppTheme.linkTextStyle),
+                    const SizedBox(height: 16),
+                    TextField(
+                      decoration: AppTheme.inputDecoration(
+                        "Titre",
+                        "Entrez le titre de l'image",
+                        Icons.title,
                       ),
-                      const SizedBox(width: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Implement save functionality
-                          Navigator.of(context).pop();
-                        },
-                        style: AppTheme.primaryButtonStyle,
-                        child: const Text("Enregistrer"),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      decoration: AppTheme.inputDecoration(
+                        "Description",
+                        "Entrez la description de l'image",
+                        Icons.description,
                       ),
-                    ],
-                  ),
-                ],
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      decoration: AppTheme.inputDecoration(
+                        "URL de l'image",
+                        "Entrez l'URL de l'image",
+                        Icons.link,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("Annuler", style: AppTheme.linkTextStyle),
+                        ),
+                        const SizedBox(width: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Implement save functionality
+                            Navigator.of(context).pop();
+                          },
+                          style: AppTheme.primaryButtonStyle,
+                          child: const Text("Enregistrer"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
