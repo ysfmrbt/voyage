@@ -36,39 +36,86 @@ class _MeteoPageState extends State<MeteoPage> {
     _lastSearchTime = now;
 
     if (query.trim().isNotEmpty) {
-      // Rechercher les villes via le provider
+      // Réinitialiser les données météo pour éviter la confusion
       final weatherProvider = Provider.of<WeatherProvider>(
         context,
         listen: false,
       );
+
+      // Réinitialiser les données météo actuelles pour ne pas les afficher pendant la recherche
+      if (weatherProvider.currentWeather != null) {
+        weatherProvider.reset();
+      }
+
+      // Rechercher les villes
       await weatherProvider.searchCities(query);
     }
   }
 
   // Méthode pour sélectionner une ville et afficher ses détails météo
   void _selectionnerVille(CityLocation ville) async {
-    // Obtenir les données météo via le provider
-    final weatherProvider = Provider.of<WeatherProvider>(
-      context,
-      listen: false,
-    );
-    await weatherProvider.getWeatherForLocation(ville);
-
-    // Vérifier si le widget est toujours monté avant d'utiliser le contexte
-    if (!mounted) return;
-
-    // Naviguer vers la page de détails météo si aucune erreur
-    if (weatherProvider.error == null) {
-      Navigator.push(
+    try {
+      // Obtenir les données météo via le provider
+      final weatherProvider = Provider.of<WeatherProvider>(
         context,
-        MaterialPageRoute(
-          builder: (context) => MeteoDetailsPage(ville: ville.displayName),
+        listen: false,
+      );
+
+      // Afficher un indicateur de chargement immédiatement
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(width: 16),
+              Text('Chargement des données météo...'),
+            ],
+          ),
+          duration: Duration(seconds: 2),
         ),
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: ${weatherProvider.error}')),
-      );
+
+      // Effacer les résultats de recherche pour ne pas les afficher pendant le chargement
+      weatherProvider.reset();
+
+      // Charger les données météo
+      await weatherProvider.getWeatherForLocation(ville);
+
+      // Vérifier si le widget est toujours monté avant d'utiliser le contexte
+      if (!mounted) return;
+
+      // Naviguer vers la page de détails météo si aucune erreur
+      if (weatherProvider.error == null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MeteoDetailsPage(ville: ville.displayName),
+          ),
+        );
+      } else {
+        // En cas d'erreur, restaurer les résultats de recherche
+        await weatherProvider.searchCities(_villeController.text);
+
+        // Vérifier si le widget est toujours monté avant d'utiliser le contexte
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: ${weatherProvider.error}')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur inattendue: $e')));
     }
   }
 
