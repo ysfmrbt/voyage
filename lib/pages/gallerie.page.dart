@@ -1,171 +1,267 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../widgets/base_page.dart';
 import '../theme/app_theme.dart';
+import '../providers/gallery_provider.dart';
+import '../models/image_model.dart';
+import '../widgets/widgets.dart';
+import 'image_details.page.dart';
 
-class GalleriePage extends StatelessWidget {
+class GalleriePage extends StatefulWidget {
   const GalleriePage({super.key});
 
   @override
+  State<GalleriePage> createState() => _GalleriePageState();
+}
+
+class _GalleriePageState extends State<GalleriePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Charger les images aléatoires au démarrage
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final galleryProvider = Provider.of<GalleryProvider>(
+        context,
+        listen: false,
+      );
+
+      // Définir directement la clé API Pixabay ici
+      galleryProvider.setApiKey("49927818-1d764cc34f2360fb9262a94d7");
+
+      // Réinitialiser les résultats de recherche
+      galleryProvider.clearSearchResults();
+
+      // Charger les images aléatoires
+      galleryProvider.loadRandomImages();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // Méthode pour naviguer vers la page de recherche
+  void _navigateToSearchPage() {
+    Navigator.pushNamed(context, '/gallery_search');
+  }
+
+  // Méthode pour rechercher par catégorie
+  void _searchByCategory(String category) {
+    // Naviguer vers la page de recherche avec la catégorie sélectionnée
+    final galleryProvider = Provider.of<GalleryProvider>(
+      context,
+      listen: false,
+    );
+
+    // Réinitialiser les résultats de recherche
+    galleryProvider.clearSearchResults();
+
+    // Effectuer la recherche par catégorie
+    galleryProvider.searchImages('', category: category);
+
+    // Naviguer vers la page de recherche
+    Navigator.pushNamed(context, '/gallery_search');
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Sample data for the gallery
-    final List<Map<String, dynamic>> images = [
-      {
-        "title": "Beach Sunset",
-        "description": "Beautiful sunset at the beach",
-        "imageUrl": "https://picsum.photos/200/300?random=1",
-        "category": "Nature",
-      },
-      {
-        "title": "Mountain View",
-        "description": "Scenic mountain landscape",
-        "imageUrl": "https://picsum.photos/200/300?random=2",
-        "category": "Landscape",
-      },
-      {
-        "title": "City Lights",
-        "description": "Night city skyline",
-        "imageUrl": "https://picsum.photos/200/300?random=3",
-        "category": "Urban",
-      },
-      {
-        "title": "Forest Path",
-        "description": "Path through dense forest",
-        "imageUrl": "https://picsum.photos/200/300?random=4",
-        "category": "Nature",
-      },
-      {
-        "title": "Desert Dunes",
-        "description": "Sandy dunes at sunset",
-        "imageUrl": "https://picsum.photos/200/300?random=5",
-        "category": "Landscape",
-      },
-      {
-        "title": "Ancient Architecture",
-        "description": "Historic building facade",
-        "imageUrl": "https://picsum.photos/200/300?random=6",
-        "category": "Architecture",
-      },
-    ];
+    final galleryProvider = Provider.of<GalleryProvider>(context);
+
+    // Déterminer quelles images afficher (résultats de recherche ou images aléatoires)
+    final List<ImageModel> displayImages =
+        galleryProvider.searchResults.isNotEmpty
+            ? galleryProvider.searchResults
+            : galleryProvider.images;
 
     return BasePage(
       title: "Galerie",
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () {
-            // Implement search functionality
-            showSearch(
-              context: context,
-              delegate: GallerySearchDelegate(images),
-            );
-          },
+          tooltip: 'Rechercher des images',
+          onPressed: _navigateToSearchPage,
         ),
         PopupMenuButton<String>(
+          tooltip: 'Filtrer par catégorie',
           onSelected: (String value) {
-            // Implement filter functionality
+            if (value == 'all') {
+              // Charger toutes les images
+              Provider.of<GalleryProvider>(
+                context,
+                listen: false,
+              ).loadRandomImages();
+            } else {
+              // Rechercher par catégorie
+              _searchByCategory(value);
+            }
           },
           itemBuilder: (BuildContext context) {
-            return [
-              const PopupMenuItem(value: "all", child: Text("Tous")),
-              const PopupMenuItem(value: "nature", child: Text("Nature")),
-              const PopupMenuItem(value: "landscape", child: Text("Paysage")),
-              const PopupMenuItem(value: "urban", child: Text("Urbain")),
-              const PopupMenuItem(
-                value: "architecture",
-                child: Text("Architecture"),
-              ),
-            ];
+            final galleryProvider = Provider.of<GalleryProvider>(
+              context,
+              listen: false,
+            );
+            final categories = galleryProvider.getAvailableCategories();
+
+            // Créer les éléments du menu
+            final items = <PopupMenuItem<String>>[];
+
+            // Ajouter l'option "Tous"
+            items.add(const PopupMenuItem(value: "all", child: Text("Tous")));
+
+            // Ajouter les catégories disponibles (limiter à 10 pour éviter un menu trop long)
+            for (int i = 0; i < 10 && i < categories.length; i++) {
+              final category = categories[i];
+              items.add(
+                PopupMenuItem(
+                  value: category,
+                  child: Text(
+                    category.substring(0, 1).toUpperCase() +
+                        category.substring(1),
+                  ),
+                ),
+              );
+            }
+
+            return items;
           },
         ),
       ],
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(
-              child: GridView.builder(
-                padding: AppTheme.paddingSmall,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 0.75,
+            // Indicateur de chargement
+            if (galleryProvider.isLoading)
+              const Expanded(child: Center(child: CircularProgressIndicator()))
+            // Message d'erreur
+            else if (galleryProvider.error != null)
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Erreur lors du chargement des images",
+                        style: AppTheme.subheadingStyle,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(galleryProvider.error!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          galleryProvider.loadRandomImages();
+                        },
+                        child: const Text("Réessayer"),
+                      ),
+                    ],
+                  ),
                 ),
-                itemCount: images.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      // Show image details when tapped
-                      _showImageDetails(context, images[index]);
-                    },
-                    child: Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: Image.network(
-                              images[index]["imageUrl"],
-                              fit: BoxFit.cover,
-                              loadingBuilder: (
-                                context,
-                                child,
-                                loadingProgress,
-                              ) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value:
-                                        loadingProgress.expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                            : null,
-                                  ),
-                                );
-                              },
-                            ),
+              )
+            // Résultats de recherche ou images aléatoires
+            else if (displayImages.isNotEmpty)
+              Expanded(
+                child: GridView.builder(
+                  padding: AppTheme.paddingSmall,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 0.75,
+                  ),
+                  itemCount: displayImages.length,
+                  itemBuilder: (context, index) {
+                    final image = displayImages[index];
+                    return GestureDetector(
+                      onTap: () {
+                        // Naviguer vers la page de détails
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ImageDetailsPage(image: image),
                           ),
-                          Padding(
-                            padding: AppTheme.paddingSmall,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  images[index]["title"],
-                                  style: AppTheme.subheadingStyle.copyWith(
-                                    fontSize: 16,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  images[index]["category"],
-                                  style: TextStyle(
-                                    color: AppTheme.captionColor,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
+                        );
+                      },
+                      child: Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: Image.network(
+                                image.imageUrl,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (
+                                  context,
+                                  child,
+                                  loadingProgress,
+                                ) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                            Padding(
+                              padding: AppTheme.paddingSmall,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    image.title,
+                                    style: AppTheme.subheadingStyle.copyWith(
+                                      fontSize: 16,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    image.category,
+                                    style: TextStyle(
+                                      color: AppTheme.captionColor,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
+              )
+            // Aucune image trouvée
+            else
+              const Expanded(
+                child: Center(child: Text("Aucune image trouvée")),
               ),
-            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Implement add new image functionality
+          // Ajouter une nouvelle image
           _showAddImageDialog(context);
         },
         backgroundColor: AppTheme.primaryColor,
@@ -174,52 +270,12 @@ class GalleriePage extends StatelessWidget {
     );
   }
 
-  void _showImageDetails(BuildContext context, Map<String, dynamic> image) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => Dialog(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.network(image["imageUrl"], fit: BoxFit.cover),
-                  Padding(
-                    padding: AppTheme.paddingMedium,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(image["title"], style: AppTheme.headingStyle),
-                        const SizedBox(height: 8),
-                        Text(
-                          image["description"],
-                          style: AppTheme.bodyTextStyle,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Catégorie: ${image["category"]}",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.captionColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Fermer", style: AppTheme.linkTextStyle),
-                  ),
-                ],
-              ),
-            ),
-          ),
-    );
-  }
-
   void _showAddImageDialog(BuildContext context) {
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+    final urlController = TextEditingController();
+    final categoryController = TextEditingController();
+
     showDialog(
       context: context,
       builder:
@@ -236,6 +292,7 @@ class GalleriePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      controller: titleController,
                       decoration: AppTheme.inputDecoration(
                         "Titre",
                         "Entrez le titre de l'image",
@@ -244,6 +301,7 @@ class GalleriePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      controller: descriptionController,
                       decoration: AppTheme.inputDecoration(
                         "Description",
                         "Entrez la description de l'image",
@@ -253,10 +311,20 @@ class GalleriePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      controller: urlController,
                       decoration: AppTheme.inputDecoration(
                         "URL de l'image",
                         "Entrez l'URL de l'image",
                         Icons.link,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: categoryController,
+                      decoration: AppTheme.inputDecoration(
+                        "Catégorie",
+                        "Entrez la catégorie de l'image",
+                        Icons.category,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -272,8 +340,31 @@ class GalleriePage extends StatelessWidget {
                         const SizedBox(width: 16),
                         ElevatedButton(
                           onPressed: () {
-                            // Implement save functionality
-                            Navigator.of(context).pop();
+                            // Ajouter l'image si tous les champs sont remplis
+                            if (titleController.text.isNotEmpty &&
+                                urlController.text.isNotEmpty &&
+                                categoryController.text.isNotEmpty) {
+                              // Ajouter l'image au provider
+                              Provider.of<GalleryProvider>(
+                                context,
+                                listen: false,
+                              ).addLocalImage({
+                                'title': titleController.text,
+                                'description': descriptionController.text,
+                                'imageUrl': urlController.text,
+                                'category': categoryController.text,
+                              });
+                              Navigator.of(context).pop();
+                            } else {
+                              // Afficher un message d'erreur
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Veuillez remplir tous les champs obligatoires",
+                                  ),
+                                ),
+                              );
+                            }
                           },
                           style: AppTheme.primaryButtonStyle,
                           child: const Text("Enregistrer"),
@@ -287,100 +378,4 @@ class GalleriePage extends StatelessWidget {
           ),
     );
   }
-}
-
-class GallerySearchDelegate extends SearchDelegate<String> {
-  final List<Map<String, dynamic>> images;
-
-  GallerySearchDelegate(this.images);
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, '');
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    final results =
-        images
-            .where(
-              (image) =>
-                  image["title"].toLowerCase().contains(query.toLowerCase()) ||
-                  image["description"].toLowerCase().contains(
-                    query.toLowerCase(),
-                  ) ||
-                  image["category"].toLowerCase().contains(query.toLowerCase()),
-            )
-            .toList();
-
-    return GridView.builder(
-      padding: AppTheme.paddingSmall,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 0.75,
-      ),
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        return Card(
-          elevation: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: Image.network(
-                  results[index]["imageUrl"],
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Padding(
-                padding: AppTheme.paddingSmall,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      results[index]["title"],
-                      style: AppTheme.subheadingStyle.copyWith(fontSize: 16),
-                    ),
-                    Text(
-                      results[index]["category"],
-                      style: TextStyle(
-                        color: AppTheme.captionColor,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return buildResults(context);
-  }
-
-  // Implementation complete
 }

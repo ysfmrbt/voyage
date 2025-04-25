@@ -10,20 +10,24 @@ class BasePage extends StatelessWidget {
   final String title;
   final Widget body;
   final bool showDrawer;
+  final bool showBackButton;
   final List<Widget>? actions;
   final FloatingActionButton? floatingActionButton;
   final Color? backgroundColor;
   final double contentPadding;
+  final VoidCallback? onBackPressed;
 
   const BasePage({
     super.key,
     required this.title,
     required this.body,
     this.showDrawer = true,
+    this.showBackButton = false,
     this.actions,
     this.floatingActionButton,
     this.backgroundColor,
     this.contentPadding = 16.0,
+    this.onBackPressed,
   });
 
   @override
@@ -32,7 +36,7 @@ class BasePage extends StatelessWidget {
     final isDarkMode = themeProvider.isDarkMode;
 
     return Scaffold(
-      drawer: showDrawer ? const MyDrawer() : null,
+      drawer: showDrawer && !showBackButton ? const MyDrawer() : null,
       appBar: AppBar(
         title: AppText.heading(
           title,
@@ -42,17 +46,22 @@ class BasePage extends StatelessWidget {
             color: isDarkMode ? AppTheme.textColor : Colors.white,
           ),
         ),
-        backgroundColor: isDarkMode 
-            ? AppTheme.surfaceColor 
-            : AppTheme.primaryColor,
-        foregroundColor: isDarkMode 
-            ? AppTheme.textColor 
-            : Colors.white,
+        backgroundColor:
+            isDarkMode ? AppTheme.surfaceColor : AppTheme.primaryColor,
+        foregroundColor: isDarkMode ? AppTheme.textColor : Colors.white,
         iconTheme: IconThemeData(
           color: isDarkMode ? AppTheme.textColor : Colors.white,
         ),
         elevation: isDarkMode ? 1 : 2,
         shadowColor: AppTheme.shadowColor,
+        leading:
+            showBackButton
+                ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
+                )
+                : null,
+        automaticallyImplyLeading: true,
         actions: actions,
       ),
       backgroundColor: backgroundColor ?? AppTheme.backgroundColor,
@@ -63,4 +72,3 @@ class BasePage extends StatelessWidget {
     );
   }
 }
-

@@ -7,12 +7,14 @@ import 'package:voyage/pages/home.page.dart';
 import 'theme/app_theme.dart';
 import 'providers/theme_provider.dart';
 import 'providers/weather_provider.dart';
+import 'providers/gallery_provider.dart';
 import 'package:voyage/pages/contact.page.dart';
 import 'package:voyage/pages/gallerie.page.dart';
 import 'package:voyage/pages/parametres.page.dart';
 import 'package:voyage/pages/pays.page.dart';
 import 'package:voyage/pages/mates.page.dart';
 import 'package:voyage/pages/meteo.page.dart';
+import 'pages/gallery_search.page.dart';
 
 void main() {
   runApp(
@@ -20,6 +22,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
+        ChangeNotifierProvider(create: (_) => GalleryProvider()),
       ],
       child: MyApp(),
     ),
@@ -39,6 +42,7 @@ class MyApp extends StatelessWidget {
     '/pays': (context) => PaysPage(),
     '/mates': (context) => MatesPage(),
     '/meteo': (context) => const MeteoPage(),
+    '/gallery_search': (context) => const GallerySearchPage(),
   };
   @override
   Widget build(BuildContext context) {
