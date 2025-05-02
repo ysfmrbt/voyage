@@ -8,9 +8,11 @@ import 'theme/app_theme.dart';
 import 'providers/theme_provider.dart';
 import 'providers/weather_provider.dart';
 import 'providers/gallery_provider.dart';
+import 'providers/country_provider.dart';
 import 'package:voyage/pages/contact.page.dart';
 import 'package:voyage/pages/gallerie.page.dart';
 import 'package:voyage/pages/parametres.page.dart';
+import 'pages/settings.page.dart';
 import 'package:voyage/pages/pays.page.dart';
 import 'package:voyage/pages/mates.page.dart';
 import 'package:voyage/pages/meteo.page.dart';
@@ -23,6 +25,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
         ChangeNotifierProvider(create: (_) => GalleryProvider()),
+        ChangeNotifierProvider(create: (_) => CountryProvider()),
       ],
       child: MyApp(),
     ),
@@ -39,6 +42,7 @@ class MyApp extends StatelessWidget {
     '/contact': (context) => ContactPage(),
     '/gallerie': (context) => GalleriePage(),
     '/parametres': (context) => ParametresPage(),
+    '/settings': (context) => const SettingsPage(),
     '/pays': (context) => PaysPage(),
     '/mates': (context) => MatesPage(),
     '/meteo': (context) => const MeteoPage(),

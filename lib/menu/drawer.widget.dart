@@ -129,6 +129,13 @@ class MyDrawer extends StatelessWidget {
             route: '/parametres',
             isDarkMode: isDarkMode,
           ),
+          _buildMenuItem(
+            context: context,
+            title: "Pays visibles",
+            icon: Icons.visibility,
+            route: '/settings',
+            isDarkMode: isDarkMode,
+          ),
 
           const SizedBox(height: 8),
 
