@@ -1,13 +1,13 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
-import "package:shared_preferences/shared_preferences.dart";
 import "../theme/app_theme.dart";
 import "../providers/theme_provider.dart";
 import "../widgets/widgets.dart";
+import "../services/auth_service.dart";
 
 class Home extends StatelessWidget {
-  static late SharedPreferences prefs;
-  const Home({super.key});
+  final AuthService _authService = AuthService();
+  Home({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -150,8 +150,11 @@ class Home extends StatelessWidget {
   Future<void> _onDeconnecter(BuildContext context) async {
     // Get the navigator before the async gap
     final navigator = Navigator.of(context);
-    prefs = await SharedPreferences.getInstance();
-    prefs.setBool("connecte", false);
+
+    // Déconnexion avec Firebase
+    await _authService.signOut();
+
+    // Rediriger vers la page d'inscription
     navigator.pushNamedAndRemoveUntil('/inscription', (route) => false);
   }
 }

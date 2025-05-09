@@ -1,14 +1,15 @@
 import "package:flutter/material.dart";
-import "package:shared_preferences/shared_preferences.dart";
 import "../widgets/base_page.dart";
 import "../theme/app_theme.dart";
+import "../services/auth_service.dart";
+import "../services/snackbar_service.dart";
 
 class AuthentificiationPage extends StatelessWidget {
   final TextEditingController txt_login;
   final TextEditingController txt_password;
-  final SharedPreferences? prefs;
+  final AuthService _authService = AuthService();
 
-  AuthentificiationPage({super.key, this.prefs})
+  AuthentificiationPage({super.key})
     : txt_login = TextEditingController(),
       txt_password = TextEditingController();
   @override
@@ -68,23 +69,20 @@ class AuthentificiationPage extends StatelessWidget {
   }
 
   Future<void> _onAuthentifier(BuildContext context) async {
-    final preferences = await SharedPreferences.getInstance();
-    if (txt_login.text.isNotEmpty && txt_password.text.isNotEmpty) {
-      if (txt_login.text == prefs?.getString("login") &&
-          txt_password.text == prefs?.getString("password")) {
-        prefs?.setBool("connecte", true);
-        Navigator.pushNamed(context, '/home');
-      } else {
-        const snackBar = SnackBar(
-          content: Text('Email ou mot de passe incorrect'),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
-    } else {
-      const snackBar = SnackBar(
-        content: Text('Veuillez remplir tous les champs'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    // Capturer le contexte avant l'opération asynchrone
+    final navigator = Navigator.of(context);
+
+    // Tenter la connexion avec Firebase
+    // La validation est maintenant gérée par le service d'authentification
+    final userCredential = await _authService.signIn(
+      email: txt_login.text.trim(),
+      password: txt_password.text,
+      context: context,
+    );
+
+    // Si la connexion a réussi, rediriger vers la page d'accueil
+    if (userCredential != null && context.mounted) {
+      navigator.pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }
 }

@@ -1,17 +1,17 @@
 import "package:flutter/material.dart";
-import "package:shared_preferences/shared_preferences.dart";
 import "../widgets/base_page.dart";
 import "../theme/app_theme.dart";
+import "../services/auth_service.dart";
+import "../services/snackbar_service.dart";
 
 class InscriptionPage extends StatelessWidget {
   final TextEditingController txt_login;
   final TextEditingController txt_password;
-  final SharedPreferences? prefs;
+  final AuthService _authService = AuthService();
 
-  InscriptionPage({super.key, SharedPreferences? prefs})
+  InscriptionPage({super.key})
     : txt_login = TextEditingController(),
-      txt_password = TextEditingController(),
-      prefs = prefs;
+      txt_password = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BasePage(
@@ -69,18 +69,20 @@ class InscriptionPage extends StatelessWidget {
   }
 
   Future<void> _onInscrire(BuildContext context) async {
-    final preferences = await SharedPreferences.getInstance();
-    if (txt_login.text.isNotEmpty && txt_password.text.isNotEmpty) {
-      prefs?.setString("login", txt_login.text);
-      prefs?.setString("password", txt_password.text);
-      prefs?.setBool("connecte", true);
-      Navigator.pop(context);
-      Navigator.pushNamed(context, '/home');
-    } else {
-      const snackBar = SnackBar(
-        content: Text('Veuillez remplir tous les champs'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    // Capturer le contexte avant l'opération asynchrone
+    final navigator = Navigator.of(context);
+
+    // Tenter l'inscription avec Firebase
+    // La validation est maintenant gérée par le service d'authentification
+    final userCredential = await _authService.signUp(
+      email: txt_login.text.trim(),
+      password: txt_password.text,
+      context: context,
+    );
+
+    // Si l'inscription a réussi, rediriger vers la page d'accueil
+    if (userCredential != null && context.mounted) {
+      navigator.pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }
 }

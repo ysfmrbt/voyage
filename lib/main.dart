@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voyage/pages/authentification.page.dart';
 import 'package:voyage/pages/inscription.page.dart';
 import 'package:voyage/pages/home.page.dart';
@@ -17,8 +16,32 @@ import 'package:voyage/pages/pays.page.dart';
 import 'package:voyage/pages/mates.page.dart';
 import 'package:voyage/pages/meteo.page.dart';
 import 'pages/gallery_search.page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    print('Initialisation de Firebase...');
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialisé avec succès!');
+    print(
+      'Projet Firebase: ${DefaultFirebaseOptions.currentPlatform.projectId}',
+    );
+    print('API Key: ${DefaultFirebaseOptions.currentPlatform.apiKey}');
+
+    // Vérifier si l'authentification est initialisée
+    final auth = FirebaseAuth.instance;
+    print('Auth instance: ${auth.app.name}');
+    print('Utilisateur actuel: ${auth.currentUser?.uid ?? "Non connecté"}');
+  } catch (e) {
+    print('ERREUR lors de l\'initialisation de Firebase: $e');
+  }
+
   runApp(
     MultiProvider(
       providers: [
@@ -148,12 +171,14 @@ class MyApp extends StatelessWidget {
         listTileTheme: AppTheme.listTileTheme,
         // Brightness is determined by the ColorScheme
       ),
-      home: FutureBuilder<SharedPreferences>(
-        future: SharedPreferences.getInstance(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
           if (snapshot.hasData) {
-            bool c = snapshot.data?.getBool('connecte') ?? false;
-            if (c) return Home();
+            return Home();
           }
           return InscriptionPage();
         },

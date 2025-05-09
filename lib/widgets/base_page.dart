@@ -36,7 +36,7 @@ class BasePage extends StatelessWidget {
     final isDarkMode = themeProvider.isDarkMode;
 
     return Scaffold(
-      drawer: showDrawer && !showBackButton ? const MyDrawer() : null,
+      drawer: showDrawer && !showBackButton ? MyDrawer() : null,
       appBar: AppBar(
         title: AppText.heading(
           title,

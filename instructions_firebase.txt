@@ -1,0 +1,61 @@
+# Instructions pour configurer Firebase correctement
+
+## Option 1 : Utiliser la CLI FlutterFire (recommandé)
+
+1. Installez la CLI FlutterFire si ce n'est pas déjà fait :
+```
+dart pub global activate flutterfire_cli
+```
+
+2. Exécutez la commande suivante pour configurer Firebase pour votre projet :
+```
+flutterfire configure
+```
+
+3. Suivez les instructions pour sélectionner votre projet Firebase et les plateformes que vous souhaitez configurer
+
+4. La CLI FlutterFire générera automatiquement un fichier firebase_options.dart avec les valeurs correctes pour votre projet
+
+## Option 2 : Mettre à jour manuellement le fichier firebase_options.dart
+
+1. Allez sur la [console Firebase](https://console.firebase.google.com/)
+2. Sélectionnez votre projet
+3. Cliquez sur l'icône d'engrenage (⚙️) à côté de "Présentation du projet" et sélectionnez "Paramètres du projet"
+4. Allez dans l'onglet "Général"
+5. Faites défiler jusqu'à la section "Vos applications" et sélectionnez votre application web
+6. Cliquez sur "Config" pour voir les valeurs de configuration
+7. Remplacez les valeurs dans le fichier firebase_options.dart par les valeurs réelles de votre projet
+
+Exemple de valeurs à remplacer dans firebase_options.dart :
+```dart
+static const FirebaseOptions web = FirebaseOptions(
+  apiKey: 'VOTRE_API_KEY',
+  appId: 'VOTRE_APP_ID',
+  messagingSenderId: 'VOTRE_MESSAGING_SENDER_ID',
+  projectId: 'VOTRE_PROJECT_ID',
+  authDomain: 'VOTRE_AUTH_DOMAIN',
+  storageBucket: 'VOTRE_STORAGE_BUCKET',
+  measurementId: 'VOTRE_MEASUREMENT_ID',
+);
+```
+
+## Vérifier que l'authentification par email/mot de passe est activée
+
+1. Allez sur la [console Firebase](https://console.firebase.google.com/)
+2. Sélectionnez votre projet
+3. Cliquez sur "Authentication" dans le menu de gauche
+4. Allez dans l'onglet "Sign-in method"
+5. Assurez-vous que la méthode "Email/Password" est activée
+6. Si ce n'est pas le cas, cliquez dessus, activez-la et enregistrez les modifications
+
+## Tester l'authentification
+
+Une fois que vous avez configuré Firebase correctement, vous devriez pouvoir voir les utilisateurs dans la console Firebase :
+
+1. Allez sur la [console Firebase](https://console.firebase.google.com/)
+2. Sélectionnez votre projet
+3. Cliquez sur "Authentication" dans le menu de gauche
+4. Allez dans l'onglet "Users"
+5. Vous devriez voir les utilisateurs que vous avez créés dans votre application
+
+Si vous ne voyez toujours pas les utilisateurs, essayez de créer un nouvel utilisateur dans votre application et vérifiez les logs pour voir s'il y a des erreurs.
